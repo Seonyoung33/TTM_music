@@ -162,4 +162,4 @@ widgetsnbextension==4.0.13
 yarl==1.17.1
 streamlit
 openai
-dotenv
+python-dotenv

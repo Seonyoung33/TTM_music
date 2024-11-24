@@ -23,13 +23,15 @@ def generate_ttm_prompt(intent):
         - Only generate prompts for audio attributes that the user mentions.
         - Don't say anything. Just say refined TTM prompt.
         """
-        # OpenAI completions.create 호출 방식으로 변경
-        response = openai.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            prompt=f"{prompt}\n{intent}",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": intent}
+            ],
             max_tokens=200
         )
-        return response['choices'][0]['text'].strip()
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None
@@ -49,13 +51,15 @@ def follow_up_questions(intent):
             2) [ Unmentioned Attribution based on user's intent:[{intent}] ]
                 - [ follow-up response recommendations ]
         """
-        # OpenAI completions.create 호출 방식으로 변경
-        response = openai.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            prompt=f"{prompt}\n{intent}",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": intent}
+            ],
             max_tokens=200
         )
-        return response['choices'][0]['text'].strip()
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None
@@ -71,13 +75,15 @@ def refine_prompt(llmprompt, user_feedback):
         - Modify [{llmprompt}] to correspond to [{user_feedback}], and generate the modified TTM prompt.
         Don't say anything. Just say modified TTM prompt.
         """
-        # OpenAI completions.create 호출 방식으로 변경
-        response = openai.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            prompt=f"{prompt}\n{user_feedback}",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": user_feedback}
+            ],
             max_tokens=200
         )
-        return response['choices'][0]['text'].strip()
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None

@@ -8,6 +8,7 @@ load_dotenv()
 
 # OpenAI API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
+print(f"OpenAI API Key: {os.getenv('OPENAI_API_KEY')}")
 if not openai.api_key:
     st.error("OpenAI API 키가 설정되지 않았습니다. .env 파일을 확인하세요.")
     st.stop()

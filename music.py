@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # OpenAI API 키 설정
-openai.api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
 # TTM 프롬프트 생성 함수
 def generate_ttm_prompt(intent):
@@ -23,15 +24,18 @@ def generate_ttm_prompt(intent):
         - Only generate prompts for audio attributes that the user mentions.
         - Don't say anything. Just say refined TTM prompt.
         """
-        response = openai.ChatCompletion.create(
+        messages = [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": intent}
+        ]
+        
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": intent}
-            ],
-            max_tokens=200
+            messages=messages
         )
-        return response['choices'][0]['message']['content'].strip()
+        
+        answer = response.choices[0].message.content.strip()  # 수정된 부분
+        return answer
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None
@@ -51,15 +55,18 @@ def follow_up_questions(intent):
             2) [ Unmentioned Attribution based on user's intent:[{intent}] ]
                 - [ follow-up response recommendations ]
         """
-        response = openai.ChatCompletion.create(
+        messages = [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": intent}
+        ]
+
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": intent}
-            ],
-            max_tokens=200
+            messages=messages
         )
-        return response['choices'][0]['message']['content'].strip()
+        
+        answer = response.choices[0].message.content.strip()  # 수정된 부분
+        return answer
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None
@@ -75,15 +82,18 @@ def refine_prompt(llmprompt, user_feedback):
         - Modify [{llmprompt}] to correspond to [{user_feedback}], and generate the modified TTM prompt.
         Don't say anything. Just say modified TTM prompt.
         """
-        response = openai.ChatCompletion.create(
+        messages = [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_feedback}
+        ]
+
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": user_feedback}
-            ],
-            max_tokens=200
+            messages=messages
         )
-        return response['choices'][0]['message']['content'].strip()
+        
+        answer = response.choices[0].message.content.strip()  # 수정된 부분
+        return answer
     except Exception as e:
         st.error(f"OpenAI API 호출 중 오류가 발생했습니다: {e}")
         return None
